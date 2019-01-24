@@ -16,6 +16,14 @@ func TestNormalizeExpr(t *testing.T) {
 		// Can't be normalized further.
 		{`x`, `x`},
 		{`102`, `102`},
+
+		// Parenthesis removal positive tests.
+		{`(x)`, `x`},
+		{`((x))`, `x`},
+		{`((*T))(ptr)`, `(*T)(ptr)`},
+
+		// Parenthesis removal negative tests.
+		{`(*T)(ptr)`, `(*T)(ptr)`},
 	}
 
 	cfg := &Config{}

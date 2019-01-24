@@ -13,5 +13,10 @@ func newNormalizer(cfg *Config) *normalizer {
 }
 
 func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
-	return x
+	switch x := x.(type) {
+	case *ast.ParenExpr:
+		return n.normalizeExpr(x.X)
+	default:
+		return x
+	}
 }
