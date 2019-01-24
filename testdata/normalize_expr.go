@@ -46,6 +46,8 @@ func foldArithTest() {
 	_, _ = x+1+1, x+2
 	_, _ = 1+x+1, x+2
 	_, _ = 1+2+x+2+1, x+6
+	_, _ = (1+2)+x+2+1, x+6
+	_, _ = ((1 + (2)) + (x + 2) + 1), x+6
 }
 
 func parenthesisRemovalTest() {
