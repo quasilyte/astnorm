@@ -70,6 +70,7 @@ func (n *normalizer) normalizeAssignOp(assign *ast.AssignStmt) *ast.AssignStmt {
 	if !astequal.Expr(assign.Lhs[0], rhs.X) {
 		return assign
 	}
+	// TODO(quasilyte): add missing ops mapping.
 	switch rhs.Op {
 	case token.ADD:
 		assign.Tok = token.ADD_ASSIGN
