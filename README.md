@@ -3,3 +3,7 @@
 [![Build Status](https://travis-ci.org/Quasilyte/astnorm.svg?branch=master)](https://travis-ci.org/Quasilyte/astnorm)
 
 Go AST normalization experiment.
+
+> THIS IS NOT A PROPER LIBRARY (yet?).<br>
+> DO NOT USE.<br>
+> It will probably be completely re-written before it becomes usable.
