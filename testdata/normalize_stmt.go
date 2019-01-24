@@ -24,7 +24,7 @@ func valueSwapTest() {
 	var x, y int
 
 	_, _ = func() {
-		tmp := x
+		tmp := (x)
 		x = y
 		y = tmp
 	}, func() {

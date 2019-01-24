@@ -29,9 +29,17 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 		return x
 	case *ast.ParenExpr:
 		return n.normalizeExpr(x.X)
+	case *ast.BinaryExpr:
+		return n.normalizeBinaryExpr(x)
 	default:
 		return x
 	}
+}
+
+func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) *ast.BinaryExpr {
+	x.X = n.normalizeExpr(x.X)
+	x.Y = n.normalizeExpr(x.Y)
+	return x
 }
 
 func (n *normalizer) normalizeExprList(xs []ast.Expr) []ast.Expr {
@@ -53,12 +61,12 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 }
 
 func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
-	// Do multi-stmt transformations before the normalizeStmt loop.
-	n.normalizeValSwap(b)
-
 	for i, x := range b.List {
 		b.List[i] = n.normalizeStmt(x)
 	}
+
+	n.normalizeValSwap(b)
+
 	return b
 }
 
@@ -75,7 +83,6 @@ func (n *normalizer) normalizeValSwap(b *ast.BlockStmt) {
 	// this transformation is illegal.
 
 	for i := 0; i < len(b.List)-2; i++ {
-
 		assignTmp := astcast.ToAssignStmt(b.List[i+0])
 		assignX := astcast.ToAssignStmt(b.List[i+1])
 		assignY := astcast.ToAssignStmt(b.List[i+2])
@@ -111,6 +118,12 @@ func (n *normalizer) normalizeValSwap(b *ast.BlockStmt) {
 }
 
 func (n *normalizer) normalizeAssignStmt(assign *ast.AssignStmt) ast.Stmt {
+	for i, lhs := range assign.Lhs {
+		assign.Lhs[i] = n.normalizeExpr(lhs)
+	}
+	for i, rhs := range assign.Rhs {
+		assign.Rhs[i] = n.normalizeExpr(rhs)
+	}
 	assign = n.normalizeAssignOp(assign)
 	return assign
 }
@@ -127,7 +140,7 @@ func (n *normalizer) normalizeAssignOp(assign *ast.AssignStmt) *ast.AssignStmt {
 	switch rhs.Op {
 	case token.ADD:
 		assign.Tok = token.ADD_ASSIGN
-		assign.Rhs[0] = n.normalizeExpr(rhs.Y)
+		assign.Rhs[0] = rhs.Y
 	}
 	return assign
 }
