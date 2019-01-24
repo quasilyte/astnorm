@@ -10,6 +10,25 @@ func identityTest() {
 	_, _ = 102, 102
 	_, _ = x+1, x+1
 	_, _ = 0-x, 0-x
+	_, _ = 1.1, 1.1
+	_, _ = 12412.312, 12412.312
+}
+
+func literalsTest() {
+	// Convert any int numerical base into 10.
+	_, _ = 0x0, 0
+	_, _ = 0x1, 1
+	_, _ = 04, 4
+	_, _ = 010, 8
+
+	// Represent floats in a consistent way.
+	_, _ = 1.0, 1.0
+	_, _ = 5.0, 5.0
+	_, _ = 0.0, 0.0
+	_, _ = .0, 0.0
+	_, _ = 0., 0.0
+	_, _ = 0.1e4, 1000.0
+	_, _ = 00.0, 0.0
 }
 
 func yodaTest() {
@@ -52,6 +71,9 @@ func foldArithTest() {
 	_, _ = 1+2+x+2+1, x+6
 	_, _ = (1+2)+x+2+1, x+6
 	_, _ = ((1 + (2)) + (x + 2) + 1), x+6
+	_, _ = 0.2+0.1, 0.3
+
+	_, _ = "a"+"b"+"c", "abc"
 }
 
 func parenthesisRemovalTest() {

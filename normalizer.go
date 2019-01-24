@@ -1,6 +1,7 @@
 package astnorm
 
 import (
+	"fmt"
 	"go/ast"
 	"go/constant"
 	"go/token"
@@ -22,12 +23,27 @@ func newNormalizer(cfg *Config) *normalizer {
 }
 
 func (n *normalizer) foldConstexpr(x ast.Expr) ast.Expr {
-	if astp.IsBasicLit(x) || astp.IsParenExpr(x) {
+	if astp.IsParenExpr(x) {
 		return nil
 	}
 	tv := n.cfg.Info.Types[x]
 	if tv.Value == nil {
 		return nil
+	}
+	if lit, ok := x.(*ast.BasicLit); ok && lit.Kind == token.FLOAT {
+		// Floats may require additional handling here.
+		if tv.Value.Kind() == constant.Int {
+			// Usually, this case means that value is 0.
+			// But to be sure, keep this assertion here.
+			v, exact := constant.Int64Val(tv.Value)
+			if !exact || v != 0 {
+				panic(fmt.Sprintf("unexpected value for float with kind=int"))
+			}
+			return &ast.BasicLit{
+				Kind:  token.FLOAT,
+				Value: "0.0",
+			}
+		}
 	}
 	return constValueNode(tv.Value)
 }

@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"go/types"
 	"strconv"
+	"strings"
 
 	"github.com/go-toolsmith/astcast"
 	"github.com/go-toolsmith/typep"
@@ -42,29 +43,28 @@ func isCommutative(info *types.Info, x *ast.BinaryExpr) bool {
 }
 
 func constValueNode(cv constant.Value) ast.Expr {
-	var folded ast.Expr
-
 	switch cv.Kind() {
 	case constant.Bool:
 		if constant.BoolVal(cv) {
-			folded = &ast.Ident{Name: "true"}
-		} else {
-			folded = &ast.Ident{Name: "false"}
+			return &ast.Ident{Name: "true"}
 		}
+		return &ast.Ident{Name: "false"}
 
 	case constant.String:
 		v := constant.StringVal(cv)
-		folded = &ast.BasicLit{
+		return &ast.BasicLit{
 			Kind:  token.STRING,
 			Value: `"` + v + `"`,
 		}
 
 	case constant.Int:
+		// For whatever reason, constant.Int can also
+		// mean "float with 0 fractional part".
 		v, exact := constant.Int64Val(cv)
 		if !exact {
 			return nil
 		}
-		folded = &ast.BasicLit{
+		return &ast.BasicLit{
 			Kind:  token.INT,
 			Value: fmt.Sprint(v),
 		}
@@ -74,18 +74,18 @@ func constValueNode(cv constant.Value) ast.Expr {
 		if !exact {
 			return nil
 		}
-		folded = &ast.BasicLit{
+		s := fmt.Sprint(v)
+		if !strings.Contains(s, ".") {
+			s += ".0"
+		}
+		return &ast.BasicLit{
 			Kind:  token.FLOAT,
-			Value: fmt.Sprint(v),
+			Value: s,
 		}
 
-	case constant.Complex:
+	default:
 		panic("unimplemented")
 	}
-
-	// TODO(Quasilyte): returned value now misses type info.
-	// See also #1.
-	return folded
 }
 
 func constValueOf(info *types.Info, x ast.Expr) constant.Value {
