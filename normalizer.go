@@ -39,6 +39,15 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) *ast.BinaryExpr {
 	x.X = n.normalizeExpr(x.X)
 	x.Y = n.normalizeExpr(x.Y)
+
+	if isCommutative(n.cfg.Info, x) {
+		// Turn yoda expressions into the more conventional notation.
+		// Put constant inside the expression after the non-constant part.
+		if isLiteralConst(n.cfg.Info, x.X) && !isLiteralConst(n.cfg.Info, x.Y) {
+			x.X, x.Y = x.Y, x.X
+		}
+	}
+
 	return x
 }
 
