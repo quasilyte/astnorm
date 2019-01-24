@@ -63,6 +63,8 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 		}
 		x.Args = n.normalizeExprList(x.Args)
 		return x
+	case *ast.SliceExpr:
+		return n.normalizeSliceExpr(x)
 	case *ast.ParenExpr:
 		return n.normalizeExpr(x.X)
 	case *ast.BinaryExpr:
@@ -77,6 +79,25 @@ func (n *normalizer) normalizeTypeConversion(x *ast.CallExpr) ast.Expr {
 	typeFrom := n.cfg.Info.TypeOf(x.Args[0])
 	if types.Identical(typeTo, typeFrom) {
 		return x.Args[0]
+	}
+	return x
+}
+
+func (n *normalizer) normalizeSliceExpr(x *ast.SliceExpr) *ast.SliceExpr {
+	x.Low = n.normalizeExpr(x.Low)
+	x.High = n.normalizeExpr(x.High)
+	x.Max = n.normalizeExpr(x.Max)
+	x.X = n.normalizeExpr(x.X)
+	// Omit default low boundary.
+	if astcast.ToBasicLit(x.Low).Value == "0" {
+		x.Low = nil
+	}
+	// Omit default high boundary, but only if 3rd index is abscent.
+	if x.Max == nil {
+		lenCall := astcast.ToCallExpr(x.High)
+		if astcast.ToIdent(lenCall.Fun).Name == "len" && astequal.Expr(lenCall.Args[0], x.X) {
+			x.High = nil
+		}
 	}
 	return x
 }

@@ -14,6 +14,20 @@ func identityTest() {
 	_, _ = 12412.312, 12412.312
 }
 
+func defaultSlicingBoundsTest() {
+	var xs []int
+	var s string
+
+	_, _ = xs[0:], xs[:]
+	_, _ = (xs)[(0+0):], xs[:]
+	_, _ = xs[0:len(xs)], xs[:]
+	_, _ = (xs)[0:(len(xs))], xs[:]
+	_, _ = xs[:0:0], xs[:0:0]
+
+	_, _ = s[0:len(s)], s[:]
+	_, _ = s[1:], s[1:]
+}
+
 func literalsTest() {
 	// Convert any int numerical base into 10.
 	_, _ = 0x0, 0
