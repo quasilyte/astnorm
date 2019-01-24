@@ -76,6 +76,22 @@ func yodaTest() {
 	_, _ = 1000/x, 1000/x
 }
 
+func foldBoolTest() {
+	_, _ = false && false, false
+	_, _ = false || false, false
+	_, _ = true && true, true
+	_, _ = true || false, true
+	_, _ = false || false || true, true
+
+	_, _ = 1 != 1, false
+	_, _ = 1 == 1, true
+
+	var x float64
+	// This is NaN test.
+	// Not something that should be replaced.
+	_, _ = x != x, x != x
+}
+
 func foldArithTest() {
 	var x int
 
