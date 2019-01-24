@@ -20,6 +20,32 @@ func assignOpTest() {
 	}
 }
 
+func valueSwapTest() {
+	var x, y int
+
+	_, _ = func() {
+		tmp := x
+		x = y
+		y = tmp
+	}, func() {
+		x, y = y, x
+	}
+
+	_, _ = func() {
+		tmp1 := x
+		x = y
+		y = tmp1
+
+		tmp2 := y
+		y = x
+		x = tmp2
+	}, func() {
+		x, y = y, x
+		y, x = x, y
+	}
+
+}
+
 func combinedTest() {
 	var x int
 

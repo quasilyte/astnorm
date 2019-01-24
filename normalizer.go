@@ -14,7 +14,9 @@ type normalizer struct {
 }
 
 func newNormalizer(cfg *Config) *normalizer {
-	return &normalizer{cfg: cfg}
+	return &normalizer{
+		cfg: cfg,
+	}
 }
 
 func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
@@ -51,10 +53,61 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 }
 
 func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
+	// Do multi-stmt transformations before the normalizeStmt loop.
+	n.normalizeValSwap(b)
+
 	for i, x := range b.List {
 		b.List[i] = n.normalizeStmt(x)
 	}
 	return b
+}
+
+func (n *normalizer) normalizeValSwap(b *ast.BlockStmt) {
+	// tmp := x
+	// x = y
+	// y = tmp
+	//
+	// =>
+	//
+	// x, y = y, x
+	//
+	// FIXME(quasilyte): if tmp is used somewhere outside of the value swap,
+	// this transformation is illegal.
+
+	for i := 0; i < len(b.List)-2; i++ {
+
+		assignTmp := astcast.ToAssignStmt(b.List[i+0])
+		assignX := astcast.ToAssignStmt(b.List[i+1])
+		assignY := astcast.ToAssignStmt(b.List[i+2])
+		if assignTmp.Tok != token.DEFINE {
+			continue
+		}
+		if assignX.Tok != token.ASSIGN || assignY.Tok != token.ASSIGN {
+			continue
+		}
+		if len(assignTmp.Lhs) != 1 || len(assignX.Lhs) != 1 || len(assignY.Lhs) != 1 {
+			continue
+		}
+		tmp := astcast.ToIdent(assignTmp.Lhs[0])
+		x := assignX.Lhs[0]
+		y := assignY.Lhs[0]
+		if !astequal.Expr(assignTmp.Rhs[0], x) {
+			continue
+		}
+		if !astequal.Expr(assignX.Rhs[0], y) {
+			continue
+		}
+		if !astequal.Expr(assignY.Rhs[0], tmp) {
+			continue
+		}
+
+		b.List[i] = &ast.AssignStmt{
+			Tok: token.ASSIGN,
+			Lhs: []ast.Expr{x, y},
+			Rhs: []ast.Expr{y, x},
+		}
+		b.List = append(b.List[:i+1], b.List[i+3:]...)
+	}
 }
 
 func (n *normalizer) normalizeAssignStmt(assign *ast.AssignStmt) ast.Stmt {
