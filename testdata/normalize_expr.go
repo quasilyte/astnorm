@@ -21,6 +21,9 @@ func yodaTest() {
 
 	// Concat is not commutative.
 	_, _ = "prefix"+s, "prefix"+s
+	// Other non-commutative ops.
+	_, _ = 1-x, 1-x
+	_, _ = 1000/x, 1000/x
 }
 
 // TODO(quasilyte): implement this after yoda tests.
