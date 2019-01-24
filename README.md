@@ -39,8 +39,7 @@ return (filtered)
  ```go
 filtered := []int{}
 filtered = xs[:]
-for i := 0; i < len(xs); i++ {
-        x := xs[i]
+for _, x := range xs {
         if x != 0 {
                 filtered = append(filtered, x)
         }
