@@ -25,7 +25,7 @@ Go AST normalization experiment.
 ```go
 const toRemove = 10
 var filtered []int
-filtered = xs[0:len(xs)]
+filtered = xs[0:0]
 for i := 0; i < len(xs); i++ {
         x := xs[i]
         if x != toRemove+1 {
@@ -39,7 +39,7 @@ return (filtered)
      
  ```go
 filtered := []int{}
-filtered = xs[:]
+filtered = xs[:0]
 for _, x := range xs {
         if x != 11 {
                 filtered = append(filtered, x)

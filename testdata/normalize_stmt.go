@@ -143,7 +143,7 @@ func rangeLoopTest() {
 		var xs []int
 		const toRemove = 10
 		var filtered []int
-		filtered = xs[0:len(xs)]
+		filtered = xs[0:0]
 		for i := 0; i < len(xs); i++ {
 			x := xs[i]
 			if x != toRemove+1 {
@@ -154,7 +154,7 @@ func rangeLoopTest() {
 	}, func() {
 		xs := []int{}
 		filtered := []int{}
-		filtered = xs[:]
+		filtered = xs[:0]
 		for _, x := range xs {
 			if x != 11 {
 				filtered = append(filtered, x)
