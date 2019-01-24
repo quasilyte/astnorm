@@ -58,9 +58,8 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 	case *ast.CallExpr:
 		if typep.IsTypeExpr(n.cfg.Info, x.Fun) {
 			return n.normalizeTypeConversion(x)
-		} else {
-			x.Fun = n.normalizeExpr(x.Fun)
 		}
+		x.Fun = n.normalizeExpr(x.Fun)
 		x.Args = n.normalizeExprList(x.Args)
 		return x
 	case *ast.SliceExpr:
