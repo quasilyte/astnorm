@@ -12,7 +12,10 @@ import (
 	"github.com/go-toolsmith/astcast"
 	"github.com/go-toolsmith/strparse"
 	"github.com/go-toolsmith/typep"
+	"golang.org/x/tools/go/ast/astutil"
 )
+
+var blankIdent = &ast.Ident{Name: "_"}
 
 func isLiteralConst(info *types.Info, x ast.Expr) bool {
 	switch x := x.(type) {
@@ -128,4 +131,20 @@ func typeToExpr(typ types.Type) ast.Expr {
 	// This is a very dirty and inefficient way,
 	// but it's at the very same time so simple and tempting.
 	return strparse.Expr(typ.String())
+}
+
+func findNode(root ast.Node, pred func(ast.Node) bool) ast.Node {
+	var found ast.Node
+	astutil.Apply(root, nil, func(cur *astutil.Cursor) bool {
+		if pred(cur.Node()) {
+			found = cur.Node()
+			return false
+		}
+		return true
+	})
+	return found
+}
+
+func containsNode(root ast.Node, pred func(ast.Node) bool) bool {
+	return findNode(root, pred) != nil
 }

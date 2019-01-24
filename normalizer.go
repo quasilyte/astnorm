@@ -154,6 +154,8 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeReturnStmt(x)
 	case *ast.DeclStmt:
 		return n.normalizeDeclStmt(x)
+	case *ast.ForStmt:
+		return n.normalizeForStmt(x)
 	default:
 		return x
 	}
@@ -217,6 +219,86 @@ func (n *normalizer) normalizeDeclStmt(stmt *ast.DeclStmt) ast.Stmt {
 		}
 	default:
 		return stmt
+	}
+}
+
+func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {
+	if len(loop.Body.List) < 2 {
+		return loop // Don't care
+	}
+
+	// I want AST matchers.
+	// A lot.
+	// Why go-toolsmith doesn't have one yet?
+	// Code below is a mess even with astcast.
+
+	init := astcast.ToAssignStmt(loop.Init)
+	cond := astcast.ToBinaryExpr(loop.Cond)
+	post := astcast.ToIncDecStmt(loop.Post)
+
+	if init.Tok != token.DEFINE || len(init.Lhs) != 1 || len(init.Rhs) != 1 {
+		return loop
+	}
+	if astcast.ToBasicLit(init.Rhs[0]).Value != "0" {
+		return loop
+	}
+	iter := init.Lhs[0]
+
+	if cond.Op != token.LSS {
+		return loop
+	}
+	if !astequal.Expr(iter, cond.X) {
+		return loop
+	}
+	lenCall := astcast.ToCallExpr(cond.Y)
+	if astcast.ToIdent(lenCall.Fun).Name != "len" {
+		return loop
+	}
+	slice := lenCall.Args[0]
+	if !typep.IsSlice(n.cfg.Info.TypeOf(slice)) {
+		return loop
+	}
+
+	if post.Tok != token.INC || !astequal.Expr(post.X, iter) {
+		return loop
+	}
+	assign := astcast.ToAssignStmt(loop.Body.List[0])
+	if assign.Tok != token.DEFINE {
+		return loop
+	}
+	if len(assign.Lhs) != 1 || len(assign.Rhs) != 1 {
+		return loop
+	}
+	indexing := astcast.ToIndexExpr(assign.Rhs[0])
+	if !astequal.Expr(indexing.X, slice) {
+		return loop
+	}
+	if !astequal.Expr(indexing.Index, iter) {
+		return loop
+	}
+
+	// Now check that iter is not modified inside loop.
+	// And since we're lazy and this is only a POC,
+	// give up on any usage of iter.
+	for _, stmt := range loop.Body.List[1:] {
+		used := containsNode(stmt, func(x ast.Node) bool {
+			return astequal.Node(x, iter)
+		})
+		if used {
+			return loop
+		}
+	}
+
+	// OK, now we are committed.
+	elem := assign.Lhs[0]
+	body := loop.Body
+	body.List = body.List[1:]
+	return &ast.RangeStmt{
+		Key:   blankIdent,
+		Value: elem,
+		Tok:   token.DEFINE,
+		X:     slice,
+		Body:  body,
 	}
 }
 

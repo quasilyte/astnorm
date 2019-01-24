@@ -93,6 +93,44 @@ func rewriteVarSpecTest() {
 	}
 }
 
+func rangeLoopTest() {
+	_, _ = func() {
+		var xs []int
+		for i := 0; i < len(xs); i++ {
+			x := xs[i]
+			_ = x
+		}
+
+		// Uses i+1 index.
+		for i := 0; i < len(xs); i++ {
+			x := xs[i+1]
+			_ = x
+		}
+
+		// Doesn't assign elem.
+		for i := 0; i < len(xs); i++ {
+			_ = i
+		}
+
+		// TODO(quasilyte): more negative tests.
+		// (Hint: use coverage to guide you, Luke!)
+	}, func() {
+		xs := []int{}
+		for _, x := range xs {
+			_ = x
+		}
+
+		for i := 0; i < len(xs); i++ {
+			x := xs[i+1]
+			_ = x
+		}
+
+		for i := 0; i < len(xs); i++ {
+			_ = i
+		}
+	}
+}
+
 func combinedTest() {
 	var x int
 
