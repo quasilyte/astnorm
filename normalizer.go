@@ -150,9 +150,16 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeAssignStmt(x)
 	case *ast.BlockStmt:
 		return n.normalizeBlockStmt(x)
+	case *ast.ReturnStmt:
+		return n.normalizeReturnStmt(x)
 	default:
 		return x
 	}
+}
+
+func (n *normalizer) normalizeReturnStmt(ret *ast.ReturnStmt) *ast.ReturnStmt {
+	ret.Results = n.normalizeExprList(ret.Results)
+	return ret
 }
 
 func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
