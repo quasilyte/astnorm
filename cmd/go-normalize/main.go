@@ -28,7 +28,6 @@ func main() {
 	if err != nil {
 		log.Panicf("loadfile: %v", err)
 	}
-	f.Comments = nil
 	normalizationConfig := &astnorm.Config{
 		Info: info,
 	}
@@ -40,6 +39,28 @@ func main() {
 }
 
 func normalizeFile(cfg *astnorm.Config, f *ast.File) *ast.File {
+	// Strip comments.
+	f.Doc = nil
+	ast.Inspect(f, func(n ast.Node) bool {
+		switch n := n.(type) {
+		case *ast.FuncDecl:
+			n.Doc = nil
+		case *ast.GenDecl:
+			n.Doc = nil
+		case *ast.Field:
+			n.Doc = nil
+		case *ast.ImportSpec:
+			n.Doc = nil
+		case *ast.ValueSpec:
+			n.Doc = nil
+		case *ast.TypeSpec:
+			n.Doc = nil
+		default:
+		}
+		return true
+	})
+	f.Comments = nil
+
 	for _, decl := range f.Decls {
 		// TODO(quasilyte): could also normalize global vars,
 		// consts and type defs, but funcs are OK for the POC.
