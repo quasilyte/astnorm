@@ -374,10 +374,9 @@ func (n *normalizer) normalizeAssignOp(assign *ast.AssignStmt) *ast.AssignStmt {
 	if !astequal.Expr(assign.Lhs[0], rhs.X) {
 		return assign
 	}
-	// TODO(quasilyte): add missing ops mapping.
-	switch rhs.Op {
-	case token.ADD:
-		assign.Tok = token.ADD_ASSIGN
+	op, ok := assignOpTab[rhs.Op]
+	if ok {
+		assign.Tok = op
 		assign.Rhs[0] = rhs.Y
 	}
 	return assign
@@ -389,4 +388,19 @@ func (n *normalizer) normalizeIfStmt(stmt *ast.IfStmt) *ast.IfStmt {
 	stmt.Body = n.normalizeBlockStmt(stmt.Body)
 	stmt.Else = n.normalizeStmt(stmt.Else)
 	return stmt
+}
+
+var assignOpTab = map[token.Token]token.Token{
+	token.ADD: token.ADD_ASSIGN,
+	token.SUB: token.SUB_ASSIGN,
+	token.MUL: token.MUL_ASSIGN,
+	token.QUO: token.QUO_ASSIGN,
+	token.REM: token.REM_ASSIGN,
+
+	token.AND:     token.AND_ASSIGN,     // &=
+	token.OR:      token.OR_ASSIGN,      // |=
+	token.XOR:     token.XOR_ASSIGN,     // ^=
+	token.SHL:     token.SHL_ASSIGN,     // <<=
+	token.SHR:     token.SHR_ASSIGN,     // >>=
+	token.AND_NOT: token.AND_NOT_ASSIGN, // &^=
 }

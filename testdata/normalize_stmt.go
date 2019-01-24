@@ -5,8 +5,10 @@ func identityTest() {
 
 	_, _ = func() {
 		x += 1
+		x -= 1
 	}, func() {
 		x += 1
+		x -= 1
 	}
 }
 
@@ -15,8 +17,12 @@ func assignOpTest() {
 
 	_, _ = func() {
 		x = x + 5
+		x = x - 2
+		x = x * 4
 	}, func() {
 		x += 5
+		x -= 2
+		x *= 4
 	}
 }
 
