@@ -28,6 +28,7 @@ func main() {
 	if err != nil {
 		log.Panicf("loadfile: %v", err)
 	}
+	f.Comments = nil
 	normalizationConfig := &astnorm.Config{
 		Info: info,
 	}
