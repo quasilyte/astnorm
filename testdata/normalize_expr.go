@@ -54,6 +54,9 @@ func conversionTest() {
 	_, _ = int(x), x
 	_, _ = int(x+1), x+1
 
+	// Repetitive conversions.
+	_, _ = int(int(int(1))), 1
+
 	// These require conversion.
 	_, _ = int32(x), int32(x)
 }
