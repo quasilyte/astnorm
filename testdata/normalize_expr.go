@@ -1,5 +1,7 @@
 package normalize_expr
 
+func addInts(x, y int) int { return x + y }
+
 func identityTest() {
 	var x int
 	type T int
@@ -14,4 +16,6 @@ func parenthesisRemovalTest() {
 
 	_, _ = (x), x
 	_, _ = ((*T)(&x)), (*T)(&x)
+	_, _ = (addInts)(1, 2), addInts(1, 2)
+	_, _ = addInts((1), (2)), addInts(1, 2)
 }
