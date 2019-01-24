@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
+	"go/types"
 
 	"github.com/go-toolsmith/astcast"
 	"github.com/go-toolsmith/astequal"
@@ -55,7 +56,9 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 
 	switch x := x.(type) {
 	case *ast.CallExpr:
-		if !typep.IsTypeExpr(n.cfg.Info, x.Fun) {
+		if typep.IsTypeExpr(n.cfg.Info, x.Fun) {
+			return n.normalizeTypeConversion(x)
+		} else {
 			x.Fun = n.normalizeExpr(x.Fun)
 		}
 		x.Args = n.normalizeExprList(x.Args)
@@ -67,6 +70,15 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 	default:
 		return x
 	}
+}
+
+func (n *normalizer) normalizeTypeConversion(x *ast.CallExpr) ast.Expr {
+	typeTo := n.cfg.Info.TypeOf(x)
+	typeFrom := n.cfg.Info.TypeOf(x.Args[0])
+	if types.Identical(typeTo, typeFrom) {
+		return x.Args[0]
+	}
+	return x
 }
 
 func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) ast.Expr {

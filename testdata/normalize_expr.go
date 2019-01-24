@@ -31,6 +31,19 @@ func literalsTest() {
 	_, _ = 00.0, 0.0
 }
 
+func conversionTest() {
+	var x int
+
+	// These alredy have proper type even without conversion.
+	_, _ = int(1), 1
+	_, _ = float64(40.1), 40.1
+	_, _ = int(x), x
+	_, _ = int(x+1), x+1
+
+	// These require conversion.
+	_, _ = int32(x), int32(x)
+}
+
 func yodaTest() {
 	var x int
 	var s string
