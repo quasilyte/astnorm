@@ -3,6 +3,8 @@ package astnorm
 import (
 	"go/ast"
 	"go/types"
+
+	"github.com/go-toolsmith/astcopy"
 )
 
 type Config struct {
@@ -10,5 +12,6 @@ type Config struct {
 }
 
 func Expr(cfg *Config, x ast.Expr) ast.Expr {
-	return newNormalizer(cfg).normalizeExpr(x)
+	copied := astcopy.Expr(x)
+	return newNormalizer(cfg).normalizeExpr(copied)
 }
