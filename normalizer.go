@@ -2,7 +2,10 @@ package astnorm
 
 import (
 	"go/ast"
+	"go/token"
 
+	"github.com/go-toolsmith/astcast"
+	"github.com/go-toolsmith/astequal"
 	"github.com/go-toolsmith/typep"
 )
 
@@ -34,4 +37,43 @@ func (n *normalizer) normalizeExprList(xs []ast.Expr) []ast.Expr {
 		xs[i] = n.normalizeExpr(x)
 	}
 	return xs
+}
+
+func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
+	switch x := x.(type) {
+	case *ast.AssignStmt:
+		return n.normalizeAssignStmt(x)
+	case *ast.BlockStmt:
+		return n.normalizeBlockStmt(x)
+	default:
+		return x
+	}
+}
+
+func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
+	for i, x := range b.List {
+		b.List[i] = n.normalizeStmt(x)
+	}
+	return b
+}
+
+func (n *normalizer) normalizeAssignStmt(assign *ast.AssignStmt) ast.Stmt {
+	assign = n.normalizeAssignOp(assign)
+	return assign
+}
+
+func (n *normalizer) normalizeAssignOp(assign *ast.AssignStmt) *ast.AssignStmt {
+	if assign.Tok != token.ASSIGN || len(assign.Lhs) != 1 {
+		return assign
+	}
+	rhs := astcast.ToBinaryExpr(assign.Rhs[0])
+	if !astequal.Expr(assign.Lhs[0], rhs.X) {
+		return assign
+	}
+	switch rhs.Op {
+	case token.ADD:
+		assign.Tok = token.ADD_ASSIGN
+		assign.Rhs[0] = n.normalizeExpr(rhs.Y)
+	}
+	return assign
 }
