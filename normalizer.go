@@ -2,10 +2,12 @@ package astnorm
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 
 	"github.com/go-toolsmith/astcast"
 	"github.com/go-toolsmith/astequal"
+	"github.com/go-toolsmith/astp"
 	"github.com/go-toolsmith/typep"
 )
 
@@ -19,7 +21,22 @@ func newNormalizer(cfg *Config) *normalizer {
 	}
 }
 
+func (n *normalizer) foldConstexpr(x ast.Expr) ast.Expr {
+	if astp.IsBasicLit(x) || astp.IsParenExpr(x) {
+		return nil
+	}
+	tv := n.cfg.Info.Types[x]
+	if tv.Value == nil {
+		return nil
+	}
+	return constValueNode(tv.Value)
+}
+
 func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
+	if folded := n.foldConstexpr(x); folded != nil {
+		return folded
+	}
+
 	switch x := x.(type) {
 	case *ast.CallExpr:
 		if !typep.IsTypeExpr(n.cfg.Info, x.Fun) {
@@ -36,11 +53,31 @@ func (n *normalizer) normalizeExpr(x ast.Expr) ast.Expr {
 	}
 }
 
-func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) *ast.BinaryExpr {
+func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) ast.Expr {
 	x.X = n.normalizeExpr(x.X)
 	x.Y = n.normalizeExpr(x.Y)
 
+	// TODO(quasilyte): implement this check in a proper way.
+	// Also handle empty strings.
+	switch {
+	case astcast.ToBasicLit(x.X).Value == "0":
+		return x.Y
+	case astcast.ToBasicLit(x.Y).Value == "0":
+		return x.X
+	}
+
 	if isCommutative(n.cfg.Info, x) {
+		lhs := astcast.ToBinaryExpr(x.X)
+		cv1 := constValueOf(n.cfg.Info, lhs.Y)
+		cv2 := constValueOf(n.cfg.Info, x.Y)
+
+		if cv1 != nil && cv2 != nil {
+			cv := constant.BinaryOp(cv1, x.Op, cv2)
+			x.X = lhs.X
+			x.Y = constValueNode(cv)
+			return n.normalizeExpr(x)
+		}
+
 		// Turn yoda expressions into the more conventional notation.
 		// Put constant inside the expression after the non-constant part.
 		if isLiteralConst(n.cfg.Info, x.X) && !isLiteralConst(n.cfg.Info, x.Y) {

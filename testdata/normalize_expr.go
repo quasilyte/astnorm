@@ -27,9 +27,10 @@ func yodaTest() {
 }
 
 // TODO(quasilyte): implement this after yoda tests.
-/*
 func foldArithTest() {
 	var x int
+
+	_, _ = 1+2+3, 6
 
 	// Zeroes can be removed completely.
 	_, _ = x+0, x
@@ -43,8 +44,9 @@ func foldArithTest() {
 	// For commutative ops fold it into a single op.
 	_, _ = x+1, x+1
 	_, _ = x+1+1, x+2
+	_, _ = 1+x+1, x+2
+	_, _ = 1+2+x+2+1, x+6
 }
-*/
 
 func parenthesisRemovalTest() {
 	var x int
