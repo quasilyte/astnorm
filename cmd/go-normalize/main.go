@@ -54,6 +54,8 @@ func main() {
 
 func normalizeFile(cfg *astnorm.Config, f *ast.File) *ast.File {
 	for _, decl := range f.Decls {
+		// TODO(quasilyte): could also normalize global vars,
+		// consts and type defs, but funcs are OK for the POC.
 		switch decl := decl.(type) {
 		case *ast.FuncDecl:
 			decl.Body = astnorm.Block(cfg, decl.Body)
