@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-toolsmith/astcast"
+	"github.com/go-toolsmith/strparse"
 	"github.com/go-toolsmith/typep"
 )
 
@@ -103,4 +104,28 @@ func constValueOf(info *types.Info, x ast.Expr) constant.Value {
 	default:
 		return nil
 	}
+}
+
+func zeroValueOf(typ types.Type) ast.Expr {
+	switch typ := typ.(type) {
+	case *types.Basic:
+		info := typ.Info()
+		switch {
+		case info&types.IsInteger != 0:
+			return &ast.BasicLit{Kind: token.INT, Value: "0"}
+		case info&types.IsFloat != 0:
+			return &ast.BasicLit{Kind: token.FLOAT, Value: "0.0"}
+		case info&types.IsString != 0:
+			return &ast.BasicLit{Kind: token.STRING, Value: `""`}
+		}
+	case *types.Slice, *types.Array:
+		return &ast.CompositeLit{Type: typeToExpr(typ)}
+	}
+	return nil
+}
+
+func typeToExpr(typ types.Type) ast.Expr {
+	// This is a very dirty and inefficient way,
+	// but it's at the very same time so simple and tempting.
+	return strparse.Expr(typ.String())
 }

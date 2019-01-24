@@ -67,6 +67,30 @@ func rewriteVarSpecTest() {
 		_ = x
 		_ = y
 	}
+
+	_, _ = func() {
+		var x int
+		_ = x
+	}, func() {
+		x := 0
+		_ = x
+	}
+
+	_, _ = func() {
+		var xs [][]int
+		_ = xs
+	}, func() {
+		xs := [][]int{}
+		_ = xs
+	}
+
+	_, _ = func() {
+		var xs [8]string
+		_ = xs
+	}, func() {
+		xs := [8]string{}
+		_ = xs
+	}
 }
 
 func combinedTest() {

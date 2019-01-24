@@ -206,7 +206,15 @@ func (n *normalizer) normalizeDeclStmt(stmt *ast.DeclStmt) ast.Stmt {
 		}
 	case len(spec.Values) == 0 && spec.Type != nil:
 		// var x T
-		return stmt
+		zv := zeroValueOf(n.cfg.Info.TypeOf(spec.Type))
+		if zv == nil {
+			return stmt
+		}
+		return &ast.AssignStmt{
+			Tok: token.DEFINE,
+			Lhs: []ast.Expr{spec.Names[0]},
+			Rhs: []ast.Expr{zv},
+		}
 	default:
 		return stmt
 	}
