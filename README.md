@@ -50,3 +50,8 @@ return filtered
      
   </td></tr>
 </table>
+
+## Usage examples
+
+* [cmd/go-normalize](/cmd/go-normalize): normalize given Go file
+* [cmd/grepfunc](/cmd/grepfunc): turn Go code into a pattern for `gogrep` and run it
