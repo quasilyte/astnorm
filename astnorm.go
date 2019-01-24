@@ -1,3 +1,4 @@
+// package astnorm implements AST normalization routines.
 package astnorm
 
 import (
