@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/Quasilyte/astnorm"
-	"golang.org/x/tools/go/packages"
+	"github.com/Quasilyte/astnorm/cmd/internal/loadfile"
 )
 
 func main() {
@@ -24,28 +24,14 @@ func main() {
 
 	// For now, handle only 1 input file case.
 	// For simplicity reasons.
-	// All those checks are to give more clear errors to the user.
-	cfg := &packages.Config{Mode: packages.LoadSyntax}
-	pkgs, err := packages.Load(cfg, targets...)
+	f, info, err := loadfile.ByPath(targets[0])
 	if err != nil {
-		log.Panicf("load: %v", err)
+		log.Panicf("loadfile: %v", err)
 	}
-	if errCount := packages.PrintErrors(pkgs); errCount != 0 {
-		log.Panicf("%d errors during package loading", errCount)
-	}
-	if len(pkgs) != 1 {
-		log.Panicf("loaded %d packages, expected only 1", len(pkgs))
-	}
-	pkg := pkgs[0]
-	if len(pkg.Syntax) != 1 {
-		log.Panicf("loaded package has %d files, expected only 1",
-			len(pkg.Syntax))
-	}
-
 	normalizationConfig := &astnorm.Config{
-		Info: pkg.TypesInfo,
+		Info: info,
 	}
-	f := normalizeFile(normalizationConfig, pkg.Syntax[0])
+	f = normalizeFile(normalizationConfig, f)
 	fset := token.NewFileSet()
 	if err := printer.Fprint(os.Stdout, fset, f); err != nil {
 		log.Panicf("print normalized file: %v", err)
