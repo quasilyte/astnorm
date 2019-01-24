@@ -9,6 +9,7 @@ func identityTest() {
 	_, _ = x, x
 	_, _ = 102, 102
 	_, _ = x+1, x+1
+	_, _ = 0-x, 0-x
 }
 
 func yodaTest() {
@@ -30,16 +31,19 @@ func yodaTest() {
 func foldArithTest() {
 	var x int
 
+	// Const-only expressions are folded entirely.
 	_, _ = 1+2+3, 6
+	_, _ = 6-2, 4
 
-	// Zeroes can be removed completely.
+	// Zeroes can be removed completely as well.
 	_, _ = x+0, x
-	_, _ = x+0+0, x
+	_, _ = x+(0)+0, x
 	_, _ = 0+x, x
 	_, _ = 0+0+x, x
-	_, _ = 0+x+0, x
-	_, _ = 0+0+x+0, x
+	_, _ = 0+x+(0), x
+	_, _ = (0+0)+x+0, x
 	_, _ = 0+x+0+0, x
+	_, _ = x-0-0, x
 
 	// For commutative ops fold it into a single op.
 	_, _ = x+1, x+1

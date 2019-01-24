@@ -60,7 +60,7 @@ func (n *normalizer) normalizeBinaryExpr(x *ast.BinaryExpr) ast.Expr {
 	// TODO(quasilyte): implement this check in a proper way.
 	// Also handle empty strings.
 	switch {
-	case astcast.ToBasicLit(x.X).Value == "0":
+	case isCommutative(n.cfg.Info, x) && astcast.ToBasicLit(x.X).Value == "0":
 		return x.Y
 	case astcast.ToBasicLit(x.Y).Value == "0":
 		return x.X
