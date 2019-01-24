@@ -12,7 +12,7 @@ Go AST normalization experiment.
 
 ## Normalized code examples
 
-### Remove all zeros from xs, in-place
+1. Remove elements that are equal to `toRemove+1`.
 
 <table>
   <tr>
@@ -23,11 +23,12 @@ Go AST normalization experiment.
   <tr><td>
   
 ```go
+const toRemove = 10
 var filtered []int
 filtered = xs[0:len(xs)]
 for i := 0; i < len(xs); i++ {
         x := xs[i]
-        if x != 0 {
+        if x != toRemove+1 {
                 filtered = append(filtered, x)
         }
 }
@@ -40,7 +41,7 @@ return (filtered)
 filtered := []int{}
 filtered = xs[:]
 for _, x := range xs {
-        if x != 0 {
+        if x != 11 {
                 filtered = append(filtered, x)
         }
 }
