@@ -2,6 +2,7 @@ package astnorm
 
 import (
 	"go/ast"
+	"strings"
 	"testing"
 
 	"github.com/go-toolsmith/astcast"
@@ -44,7 +45,10 @@ func collectFuncDecls(pkg *packages.Package) []*ast.FuncDecl {
 	for _, f := range pkg.Syntax {
 		for _, decl := range f.Decls {
 			decl, ok := decl.(*ast.FuncDecl)
-			if ok || decl.Body == nil {
+			if !ok || decl.Body == nil {
+				continue
+			}
+			if !strings.HasSuffix(decl.Name.Name, "Test") {
 				continue
 			}
 			funcs = append(funcs, decl)

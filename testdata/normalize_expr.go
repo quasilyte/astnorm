@@ -1,6 +1,6 @@
 package normalize_expr
 
-func identity() {
+func identityTest() {
 	var x int
 	type T int
 
@@ -8,7 +8,7 @@ func identity() {
 	_, _ = 102, 102
 }
 
-func parenthesisRemoval() {
+func parenthesisRemovalTest() {
 	var x int
 	type T int
 
