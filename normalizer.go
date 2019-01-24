@@ -156,6 +156,8 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeDeclStmt(x)
 	case *ast.ForStmt:
 		return n.normalizeForStmt(x)
+	case *ast.IfStmt:
+		return n.normalizeIfStmt(x)
 	default:
 		return x
 	}
@@ -223,6 +225,11 @@ func (n *normalizer) normalizeDeclStmt(stmt *ast.DeclStmt) ast.Stmt {
 }
 
 func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {
+	loop.Init = n.normalizeStmt(loop.Init)
+	loop.Cond = n.normalizeExpr(loop.Cond)
+	loop.Post = n.normalizeStmt(loop.Post)
+	loop.Body = n.normalizeBlockStmt(loop.Body)
+
 	if len(loop.Body.List) < 2 {
 		return loop // Don't care
 	}
@@ -375,4 +382,12 @@ func (n *normalizer) normalizeAssignOp(assign *ast.AssignStmt) *ast.AssignStmt {
 		assign.Rhs[0] = rhs.Y
 	}
 	return assign
+}
+
+func (n *normalizer) normalizeIfStmt(stmt *ast.IfStmt) *ast.IfStmt {
+	stmt.Init = n.normalizeStmt(stmt.Init)
+	stmt.Cond = n.normalizeExpr(stmt.Cond)
+	stmt.Body = n.normalizeBlockStmt(stmt.Body)
+	stmt.Else = n.normalizeStmt(stmt.Else)
+	return stmt
 }

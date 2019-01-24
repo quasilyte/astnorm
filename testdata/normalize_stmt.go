@@ -53,6 +53,15 @@ func removeConstDeclsTest() {
 	}, func() {
 		_ = 20
 	}
+
+	_, _ = func() {
+		const n = 10
+		x := 10
+		_ = x != n+1
+	}, func() {
+		x := 10
+		_ = x != 11
+	}
 }
 
 func rewriteVarSpecTest() {
@@ -128,6 +137,30 @@ func rangeLoopTest() {
 		for i := 0; i < len(xs); i++ {
 			_ = i
 		}
+	}
+
+	_, _ = func() {
+		var xs []int
+		const toRemove = 10
+		var filtered []int
+		filtered = xs[0:len(xs)]
+		for i := 0; i < len(xs); i++ {
+			x := xs[i]
+			if x != toRemove+1 {
+				filtered = append(filtered, x)
+			}
+		}
+		_ = (filtered)
+	}, func() {
+		xs := []int{}
+		filtered := []int{}
+		filtered = xs[:]
+		for _, x := range xs {
+			if x != 11 {
+				filtered = append(filtered, x)
+			}
+		}
+		_ = filtered
 	}
 }
 
