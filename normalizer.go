@@ -163,9 +163,18 @@ func (n *normalizer) normalizeReturnStmt(ret *ast.ReturnStmt) *ast.ReturnStmt {
 }
 
 func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
-	for i, x := range b.List {
-		b.List[i] = n.normalizeStmt(x)
+	list := b.List[:0]
+	for _, x := range b.List {
+		// Filter-out const decls.
+		// We inline const values, so local const defs are
+		// not needed to keep code valid.
+		decl, ok := x.(*ast.DeclStmt)
+		if ok && decl.Decl.(*ast.GenDecl).Tok == token.CONST {
+			continue
+		}
+		list = append(list, n.normalizeStmt(x))
 	}
+	b.List = list
 
 	n.normalizeValSwap(b)
 

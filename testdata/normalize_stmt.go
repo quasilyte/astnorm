@@ -46,6 +46,15 @@ func valueSwapTest() {
 
 }
 
+func removeConstDeclsTest() {
+	_, _ = func() {
+		const n = 10
+		_ = n + n
+	}, func() {
+		_ = 20
+	}
+}
+
 func combinedTest() {
 	var x int
 
