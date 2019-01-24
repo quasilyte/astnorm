@@ -14,9 +14,9 @@ func assignOpTest() {
 	var x int
 
 	_, _ = func() {
-		x = x + 1
+		x = x + 5
 	}, func() {
-		x += 1
+		x += 5
 	}
 }
 
