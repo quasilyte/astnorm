@@ -55,6 +55,20 @@ func removeConstDeclsTest() {
 	}
 }
 
+func rewriteVarSpecTest() {
+	_, _ = func() {
+		var x = 10
+		var y float32 = float32(x)
+		_ = x
+		_ = y
+	}, func() {
+		x := 10
+		y := float32(x)
+		_ = x
+		_ = y
+	}
+}
+
 func combinedTest() {
 	var x int
 

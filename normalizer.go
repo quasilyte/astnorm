@@ -152,6 +152,8 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeBlockStmt(x)
 	case *ast.ReturnStmt:
 		return n.normalizeReturnStmt(x)
+	case *ast.DeclStmt:
+		return n.normalizeDeclStmt(x)
 	default:
 		return x
 	}
@@ -179,6 +181,35 @@ func (n *normalizer) normalizeBlockStmt(b *ast.BlockStmt) *ast.BlockStmt {
 	n.normalizeValSwap(b)
 
 	return b
+}
+
+func (n *normalizer) normalizeDeclStmt(stmt *ast.DeclStmt) ast.Stmt {
+	decl := stmt.Decl.(*ast.GenDecl)
+	if decl.Tok != token.VAR {
+		return stmt
+	}
+	if len(decl.Specs) != 1 {
+		return stmt
+	}
+	spec := decl.Specs[0].(*ast.ValueSpec)
+	if len(spec.Names) != 1 {
+		return stmt
+	}
+
+	switch {
+	case len(spec.Values) == 1:
+		// var x T = v
+		return &ast.AssignStmt{
+			Tok: token.DEFINE,
+			Lhs: []ast.Expr{spec.Names[0]},
+			Rhs: []ast.Expr{spec.Values[0]},
+		}
+	case len(spec.Values) == 0 && spec.Type != nil:
+		// var x T
+		return stmt
+	default:
+		return stmt
+	}
 }
 
 func (n *normalizer) normalizeValSwap(b *ast.BlockStmt) {
