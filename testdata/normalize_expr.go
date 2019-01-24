@@ -76,7 +76,6 @@ func yodaTest() {
 	_, _ = 1000/x, 1000/x
 }
 
-// TODO(quasilyte): implement this after yoda tests.
 func foldArithTest() {
 	var x int
 
