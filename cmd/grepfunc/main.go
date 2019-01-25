@@ -21,6 +21,8 @@ func main() {
 		`input Go file with pattern function`)
 	pattern := flag.String("pattern", "_pattern",
 		`function to be interpreted as a pattern`)
+	verbose := flag.Bool("v", false,
+		`turn on debug output`)
 	flag.Parse()
 
 	if *input == "" {
@@ -51,6 +53,10 @@ func main() {
 	s := astfmt.Sprint(pat)
 	s = strings.TrimPrefix(s, "{")
 	s = strings.TrimSuffix(s, "}")
+
+	if *verbose {
+		fmt.Println(s)
+	}
 
 	gogrepArgs := []string{"-x", s}
 	gogrepArgs = append(gogrepArgs, targets...)
