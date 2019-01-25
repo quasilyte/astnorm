@@ -1,5 +1,7 @@
 package normalize_stmt
 
+func addInts(x, y int) int { return x + y }
+
 func identityTest() {
 	var x int
 
@@ -257,6 +259,14 @@ func rangeLoopTest() {
 			_ = xs[i]
 			i++
 		}
+	}
+}
+
+func exprStmtTest() {
+	_, _ = func() {
+		addInts((1), 0+0+0)
+	}, func() {
+		addInts(1, 0)
 	}
 }
 
