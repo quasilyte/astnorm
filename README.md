@@ -65,7 +65,7 @@ return (filtered)
   </td><td>
      
  ```go
-filtered := []int{}
+filtered := []int(nil)
 filtered = xs[:0]
 for _, x := range xs {
         if x != 11 {
