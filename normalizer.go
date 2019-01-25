@@ -166,9 +166,16 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeForStmt(x)
 	case *ast.IfStmt:
 		return n.normalizeIfStmt(x)
+	case *ast.IncDecStmt:
+		return n.normalizeIncDecStmt(x)
 	default:
 		return x
 	}
+}
+
+func (n *normalizer) normalizeIncDecStmt(stmt *ast.IncDecStmt) *ast.IncDecStmt {
+	stmt.X = n.normalizeExpr(stmt.X)
+	return stmt
 }
 
 func (n *normalizer) normalizeReturnStmt(ret *ast.ReturnStmt) *ast.ReturnStmt {

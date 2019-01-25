@@ -12,6 +12,18 @@ func identityTest() {
 	}
 }
 
+func incdecStmtTest() {
+	var x int
+
+	_, _ = func() {
+		x++
+		(x)++
+	}, func() {
+		x++
+		x++
+	}
+}
+
 func assignOpTest() {
 	var x int
 
