@@ -66,6 +66,12 @@ go-normalize mylib2/mylib2.go
 go-normalize mylib1/mylib1.go > mylib1n/mylib1.go
 go-normalize mylib2/mylib2.go > mylib2n/mylib2.go
 
+# Compare mylib1.go before and after normalization.
+vimdiff mylib1/mylib1.go mylib1n/mylib1.go
+
+# Compare normalized mylib1.go and normalized mylib2.go.
+vimdiff mylib1n/mylib1.go mylib2n/mylib2.go
+
 # Use grepfunc to create a pattern from Go code.
 # With syntax patterns, we can now ignore variable
 # names differences and find both functions
