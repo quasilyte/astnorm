@@ -58,9 +58,43 @@ return filtered
 * [cmd/go-normalize](/cmd/go-normalize): normalize given Go file
 * [cmd/grepfunc](/cmd/grepfunc): turn Go code into a pattern for `gogrep` and run it
 
-Potential workflow:
+Potential workflow for code searching:
+
+### Code search
 
 * Normalize the entire Go stdlib
 * Then normalize your function
 * Run `grepfunc` against normalized stdlib
 * If function you implemented has implementation under the stdlib, you'll probably find it
+
+Basically, instead of stdlib you can use any kind of Go corpus.
+
+### Static analysis
+
+Suppose we have `badcode.go` file:
+
+```go
+package badpkg
+
+func NotEqual(x1, x2 int) bool {
+	return (x1) != x1
+}
+```
+
+There is an obvious mistake there, `x1` used twice, but because of extra parenthesis, linters may not detect this issue:
+
+```bash
+$ staticcheck badcode.go
+# No output
+```
+
+Let's normalize the input first and then run `staticcheck`:
+
+```bash
+go-normalize badcode.go > normalized_badcode.go
+staticcheck normalized_badcode.go
+normalized_badcode.go:4:9: identical expressions on the left and right side of the '!=' operator (SA4000)
+```
+
+And we get the warning we deserve!
+No changes into `staticcheck` or any other linter are required.
