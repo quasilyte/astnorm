@@ -14,7 +14,32 @@ Go AST normalization experiment.
 
 ## Normalized code examples
 
-1. Remove elements that are equal to `toRemove+1`.
+1. Swap values.
+
+<table>
+  <tr>
+    <th>Before</th>
+    <th>After</th>
+  </tr>
+  
+  <tr><td>
+  
+```go
+tmp := xs[i]
+xs[i] = ys[i]
+ys[i] = tmp
+```
+  
+  </td><td>
+     
+ ```go
+xs[i], ys[i] = ys[i], xs[i]
+```
+     
+  </td></tr>
+</table>
+
+2. Remove elements that are equal to `toRemove+1`.
 
 <table>
   <tr>
