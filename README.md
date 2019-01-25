@@ -55,3 +55,10 @@ return filtered
 
 * [cmd/go-normalize](/cmd/go-normalize): normalize given Go file
 * [cmd/grepfunc](/cmd/grepfunc): turn Go code into a pattern for `gogrep` and run it
+
+Potential workflow:
+
+* Normalize the entire Go stdlib
+* Then normalize your function
+* Run `grepfunc` against normalized stdlib
+* If function you implemented has implementation under the stdlib, you'll probably find it
