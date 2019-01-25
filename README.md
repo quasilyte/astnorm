@@ -126,3 +126,5 @@ normalized_badcode.go:4:9: identical expressions on the left and right side of t
 
 And we get the warning we deserve!
 No changes into `staticcheck` or any other linter are required.
+
+See also: [demo script](/example/demo.bash).
