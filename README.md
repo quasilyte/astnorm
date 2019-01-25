@@ -53,7 +53,7 @@ xs[i], ys[i] = ys[i], xs[i]
 const toRemove = 10
 var filtered []int
 filtered = xs[0:0]
-for i := 0; i < len(xs); i++ {
+for i := int(0); i < len(xs); i++ {
         x := xs[i]
         if x != toRemove+1 {
                 filtered = append(filtered, x)
