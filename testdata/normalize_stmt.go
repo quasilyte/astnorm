@@ -93,10 +93,14 @@ func rewriteVarSpecTest() {
 
 	_, _ = func() {
 		var xs [][]int
+		var s string
 		_ = xs
+		_ = s
 	}, func() {
 		xs := [][]int{}
+		s := ""
 		_ = xs
+		_ = s
 	}
 
 	_, _ = func() {
@@ -105,6 +109,16 @@ func rewriteVarSpecTest() {
 	}, func() {
 		xs := [8]string{}
 		_ = xs
+	}
+
+	_, _ = func() (float64, float32) {
+		var x float64
+		var y float32
+		return x, y
+	}, func() (float64, float32) {
+		x := 0.0
+		y := float32(0.0)
+		return x, y
 	}
 }
 
@@ -123,6 +137,7 @@ func rangeLoopTest() {
 		}
 
 		// Doesn't assign elem.
+
 		for i := 0; i < len(xs); i++ {
 			_ = i
 		}

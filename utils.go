@@ -113,13 +113,21 @@ func zeroValueOf(typ types.Type) ast.Expr {
 	switch typ := typ.(type) {
 	case *types.Basic:
 		info := typ.Info()
+		var zv ast.Expr
 		switch {
 		case info&types.IsInteger != 0:
-			return &ast.BasicLit{Kind: token.INT, Value: "0"}
+			zv = &ast.BasicLit{Kind: token.INT, Value: "0"}
 		case info&types.IsFloat != 0:
-			return &ast.BasicLit{Kind: token.FLOAT, Value: "0.0"}
+			zv = &ast.BasicLit{Kind: token.FLOAT, Value: "0.0"}
 		case info&types.IsString != 0:
-			return &ast.BasicLit{Kind: token.STRING, Value: `""`}
+			zv = &ast.BasicLit{Kind: token.STRING, Value: `""`}
+		}
+		if isDefaultLiteralType(typ) {
+			return zv
+		}
+		return &ast.CallExpr{
+			Fun:  typeToExpr(typ),
+			Args: []ast.Expr{zv},
 		}
 	case *types.Slice, *types.Array:
 		return &ast.CompositeLit{Type: typeToExpr(typ)}
@@ -147,4 +155,17 @@ func findNode(root ast.Node, pred func(ast.Node) bool) ast.Node {
 
 func containsNode(root ast.Node, pred func(ast.Node) bool) bool {
 	return findNode(root, pred) != nil
+}
+
+func isDefaultLiteralType(typ types.Type) bool {
+	btyp, ok := typ.(*types.Basic)
+	if !ok {
+		return false
+	}
+	switch btyp.Kind() {
+	case types.Bool, types.Int, types.Float64, types.String:
+		return true
+	default:
+		return false
+	}
 }

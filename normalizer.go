@@ -49,11 +49,7 @@ func (n *normalizer) foldConstexpr(x ast.Expr) ast.Expr {
 	}
 
 	if call, ok := x.(*ast.CallExpr); ok && typep.IsTypeExpr(n.cfg.Info, call.Fun) {
-		typ := n.cfg.Info.TypeOf(call).Underlying().(*types.Basic)
-		switch typ.Kind() {
-		case types.Bool, types.Int, types.Float64, types.String:
-			// Do nothing.
-		default:
+		if !isDefaultLiteralType(n.cfg.Info.TypeOf(call).Underlying()) {
 			call.Args[0] = constValueNode(tv.Value)
 			return call
 		}
