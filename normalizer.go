@@ -238,7 +238,7 @@ func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {
 	loop.Post = n.normalizeStmt(loop.Post)
 	loop.Body = n.normalizeBlockStmt(loop.Body)
 
-	if len(loop.Body.List) < 2 {
+	if len(loop.Body.List) == 0 {
 		return loop // Don't care
 	}
 
@@ -257,7 +257,7 @@ func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {
 	if astcast.ToBasicLit(init.Rhs[0]).Value != "0" {
 		return loop
 	}
-	iter := init.Lhs[0]
+	iter := astcast.ToIdent(init.Lhs[0])
 
 	if cond.Op != token.LSS {
 		return loop
@@ -277,43 +277,61 @@ func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {
 	if post.Tok != token.INC || !astequal.Expr(post.X, iter) {
 		return loop
 	}
+
+	// Loop header matched.
+	// Now need to see whether we need a key and/or val.
+	var val ast.Expr
+	keyUsed := false
+	skip := 0
+
 	assign := astcast.ToAssignStmt(loop.Body.List[0])
-	if assign.Tok != token.DEFINE {
-		return loop
-	}
-	if len(assign.Lhs) != 1 || len(assign.Rhs) != 1 {
-		return loop
-	}
-	indexing := astcast.ToIndexExpr(assign.Rhs[0])
-	if !astequal.Expr(indexing.X, slice) {
-		return loop
-	}
-	if !astequal.Expr(indexing.Index, iter) {
-		return loop
+	if assign.Tok == token.DEFINE && len(assign.Lhs) == 1 && len(assign.Rhs) == 1 {
+		indexing := astcast.ToIndexExpr(assign.Rhs[0])
+		if astequal.Expr(indexing.X, slice) && astequal.Expr(indexing.Index, iter) {
+			val = assign.Lhs[0]
+			skip = 1
+		}
 	}
 
 	// Now check that iter is not modified inside loop.
 	// And since we're lazy and this is only a POC,
 	// give up on any usage of iter.
-	for _, stmt := range loop.Body.List[1:] {
-		used := containsNode(stmt, func(x ast.Node) bool {
-			return astequal.Node(x, iter)
+	for _, stmt := range loop.Body.List[skip:] {
+		giveUp := false
+		ast.Inspect(stmt, func(x ast.Node) bool {
+			switch x := x.(type) {
+			case *ast.IndexExpr:
+				index := astcast.ToIdent(x.Index)
+				if index.Name == iter.Name && astequal.Expr(x.X, slice) {
+					keyUsed = true
+					return false
+				}
+				return true
+			case *ast.Ident:
+				if x.Name == iter.Name {
+					giveUp = true
+				}
+				return true
+			default:
+				return true
+			}
 		})
-		if used {
+		if giveUp {
 			return loop
 		}
 	}
 
-	// OK, now we are committed.
-	elem := assign.Lhs[0]
-	body := loop.Body
-	body.List = body.List[1:]
+	key := iter
+	if !keyUsed {
+		key = blankIdent
+	}
+	loop.Body.List = loop.Body.List[skip:]
 	return &ast.RangeStmt{
-		Key:   blankIdent,
-		Value: elem,
+		Key:   key,
+		Value: val,
 		Tok:   token.DEFINE,
 		X:     slice,
-		Body:  body,
+		Body:  loop.Body,
 	}
 }
 

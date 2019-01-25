@@ -183,14 +183,63 @@ func rangeLoopTest() {
 		}
 		_ = filtered
 	}
+
+	_, _ = func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			_ = xs[i]
+		}
+	}, func(xs []int) {
+		for i := range xs {
+			_ = xs[i]
+		}
+	}
+
+	_, _ = func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			_ = xs[i+1]
+		}
+	}, func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			_ = xs[i+1]
+		}
+	}
+
+	_, _ = func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			v := xs[i]
+			_ = v
+			_ = xs[i]
+		}
+	}, func(xs []int) {
+		for i, v := range xs {
+			_ = v
+			_ = xs[i]
+		}
+	}
+
+	_, _ = func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			v := xs[i]
+			_ = v
+			_ = xs[i]
+			i++
+		}
+	}, func(xs []int) {
+		for i := 0; i < len(xs); i++ {
+			v := xs[i]
+			_ = v
+			_ = xs[i]
+			i++
+		}
+	}
 }
 
 func combinedTest() {
 	var x int
 
 	_, _ = func() {
-		x = x + (1)
+		x = x + (2)
 	}, func() {
-		x += 1
+		x += 2
 	}
 }
