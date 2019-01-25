@@ -32,7 +32,7 @@ func rangeStmtTest() {
 			_ = (i)
 		}
 	}, func() {
-		for i := range xs[:] {
+		for i := range xs {
 			_ = i
 		}
 	}

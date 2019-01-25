@@ -17,15 +17,18 @@ func identityTest() {
 func defaultSlicingBoundsTest() {
 	var xs []int
 	var s string
+	var a [3]int
 
-	_, _ = xs[0:], xs[:]
-	_, _ = (xs)[(0+0):], xs[:]
-	_, _ = xs[0:len(xs)], xs[:]
-	_, _ = (xs)[0:(len(xs))], xs[:]
+	_, _ = xs[0:], xs
+	_, _ = (xs)[(0+0):], xs
+	_, _ = xs[0:len(xs)], xs
+	_, _ = (xs)[0:(len(xs))], xs
 	_, _ = xs[:0:0], xs[:0:0]
 
-	_, _ = s[0:len(s)], s[:]
+	_, _ = s[0:len(s)], s
 	_, _ = s[1:], s[1:]
+
+	_, _ = a[:], a[:]
 }
 
 func literalsTest() {

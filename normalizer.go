@@ -91,7 +91,7 @@ func (n *normalizer) normalizeTypeConversion(x *ast.CallExpr) ast.Expr {
 	return x
 }
 
-func (n *normalizer) normalizeSliceExpr(x *ast.SliceExpr) *ast.SliceExpr {
+func (n *normalizer) normalizeSliceExpr(x *ast.SliceExpr) ast.Expr {
 	x.Low = n.normalizeExpr(x.Low)
 	x.High = n.normalizeExpr(x.High)
 	x.Max = n.normalizeExpr(x.Max)
@@ -106,6 +106,10 @@ func (n *normalizer) normalizeSliceExpr(x *ast.SliceExpr) *ast.SliceExpr {
 		if astcast.ToIdent(lenCall.Fun).Name == "len" && astequal.Expr(lenCall.Args[0], x.X) {
 			x.High = nil
 		}
+	}
+	// s[:] => s if s is a slice or a string.
+	if x.Low == nil && x.High == nil && !typep.IsArray(n.cfg.Info.TypeOf(x.X)) {
+		return x.X
 	}
 	return x
 }
