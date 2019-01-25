@@ -69,6 +69,9 @@ Potential workflow for code searching:
 
 Basically, instead of stdlib you can use any kind of Go corpus.
 
+Another code search related tasks that can be simplified by `astnorm` are code similarity
+evaluation and code duplication detection of any kind.
+
 ### Static analysis
 
 Suppose we have `badcode.go` file:
