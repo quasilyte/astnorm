@@ -270,6 +270,18 @@ func exprStmtTest() {
 	}
 }
 
+func labeledStmtTest() {
+	_, _ = func() int {
+		goto L
+	L:
+		return (0)
+	}, func() int {
+		goto L
+	L:
+		return 0
+	}
+}
+
 func combinedTest() {
 	var x int
 

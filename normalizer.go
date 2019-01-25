@@ -158,6 +158,8 @@ func (n *normalizer) normalizeExprList(xs []ast.Expr) []ast.Expr {
 
 func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 	switch x := x.(type) {
+	case *ast.LabeledStmt:
+		return n.normalizeLabeledStmt(x)
 	case *ast.ExprStmt:
 		return n.normalizeExprStmt(x)
 	case *ast.AssignStmt:
@@ -405,7 +407,12 @@ func (n *normalizer) normalizeValSwap(b *ast.BlockStmt) {
 	}
 }
 
-func (n *normalizer) normalizeExprStmt(stmt *ast.ExprStmt) ast.Stmt {
+func (n *normalizer) normalizeLabeledStmt(stmt *ast.LabeledStmt) *ast.LabeledStmt {
+	stmt.Stmt = n.normalizeStmt(stmt.Stmt)
+	return stmt
+}
+
+func (n *normalizer) normalizeExprStmt(stmt *ast.ExprStmt) *ast.ExprStmt {
 	stmt.X = n.normalizeExpr(stmt.X)
 	return stmt
 }
