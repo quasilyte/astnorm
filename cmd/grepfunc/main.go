@@ -17,7 +17,10 @@ import (
 func main() {
 	log.SetFlags(0)
 
-	input := flag.String("input", "", `input Go file with _pattern function`)
+	input := flag.String("input", "",
+		`input Go file with pattern function`)
+	pattern := flag.String("pattern", "_pattern",
+		`function to be interpreted as a pattern`)
 	flag.Parse()
 
 	if *input == "" {
@@ -33,13 +36,13 @@ func main() {
 	var fndecl *ast.FuncDecl
 	for _, decl := range f.Decls {
 		decl, ok := decl.(*ast.FuncDecl)
-		if ok && decl.Name.Name == "_pattern" {
+		if ok && decl.Name.Name == *pattern {
 			fndecl = decl
 			break
 		}
 	}
 	if fndecl == nil {
-		log.Panicf("found no `_pattern` func in %q", targets[0])
+		log.Panicf("found no `%s` func in %q", *pattern, targets[0])
 	}
 	if fndecl.Body == nil {
 		log.Panic("external funcs are not supported")
