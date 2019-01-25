@@ -6,6 +6,8 @@
 
 Go AST normalization experiment.
 
+![logo](/logo.jpg)
+
 > THIS IS NOT A PROPER LIBRARY (yet?).<br>
 > DO NOT USE.<br>
 > It will probably be completely re-written before it becomes usable.
