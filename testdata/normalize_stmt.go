@@ -97,7 +97,7 @@ func rewriteVarSpecTest() {
 		_ = xs
 		_ = s
 	}, func() {
-		xs := [][]int{}
+		xs := [][]int(nil)
 		s := ""
 		_ = xs
 		_ = s
@@ -145,7 +145,7 @@ func rangeLoopTest() {
 		// TODO(quasilyte): more negative tests.
 		// (Hint: use coverage to guide you, Luke!)
 	}, func() {
-		xs := []int{}
+		xs := []int(nil)
 		for _, x := range xs {
 			_ = x
 		}
@@ -173,8 +173,8 @@ func rangeLoopTest() {
 		}
 		_ = (filtered)
 	}, func() {
-		xs := []int{}
-		filtered := []int{}
+		xs := []int(nil)
+		filtered := []int(nil)
 		filtered = xs[:0]
 		for _, x := range xs {
 			if x != 11 {

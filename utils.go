@@ -129,7 +129,12 @@ func zeroValueOf(typ types.Type) ast.Expr {
 			Fun:  typeToExpr(typ),
 			Args: []ast.Expr{zv},
 		}
-	case *types.Slice, *types.Array:
+	case *types.Slice:
+		return &ast.CallExpr{
+			Fun:  typeToExpr(typ),
+			Args: []ast.Expr{&ast.Ident{Name: "nil"}},
+		}
+	case *types.Array:
 		return &ast.CompositeLit{Type: typeToExpr(typ)}
 	}
 	return nil
