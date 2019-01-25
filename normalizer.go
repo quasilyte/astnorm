@@ -164,6 +164,8 @@ func (n *normalizer) normalizeStmt(x ast.Stmt) ast.Stmt {
 		return n.normalizeDeclStmt(x)
 	case *ast.ForStmt:
 		return n.normalizeForStmt(x)
+	case *ast.RangeStmt:
+		return n.normalizeRangeStmt(x)
 	case *ast.IfStmt:
 		return n.normalizeIfStmt(x)
 	case *ast.IncDecStmt:
@@ -237,6 +239,14 @@ func (n *normalizer) normalizeDeclStmt(stmt *ast.DeclStmt) ast.Stmt {
 	default:
 		return stmt
 	}
+}
+
+func (n *normalizer) normalizeRangeStmt(loop *ast.RangeStmt) *ast.RangeStmt {
+	loop.Key = n.normalizeExpr(loop.Key)     // Not needed?
+	loop.Value = n.normalizeExpr(loop.Value) // Not needed?
+	loop.X = n.normalizeExpr(loop.X)
+	loop.Body = n.normalizeBlockStmt(loop.Body)
+	return loop
 }
 
 func (n *normalizer) normalizeForStmt(loop *ast.ForStmt) ast.Stmt {

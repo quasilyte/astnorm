@@ -24,6 +24,20 @@ func incdecStmtTest() {
 	}
 }
 
+func rangeStmtTest() {
+	var xs []int
+
+	_, _ = func() {
+		for i := range xs[0:len(xs)] {
+			_ = (i)
+		}
+	}, func() {
+		for i := range xs[:] {
+			_ = i
+		}
+	}
+}
+
 func assignOpTest() {
 	var x int
 
