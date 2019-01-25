@@ -31,6 +31,7 @@ func (n *normalizer) foldConstexpr(x ast.Expr) ast.Expr {
 	if tv.Value == nil {
 		return nil
 	}
+
 	if lit, ok := x.(*ast.BasicLit); ok && lit.Kind == token.FLOAT {
 		// Floats may require additional handling here.
 		if tv.Value.Kind() == constant.Int {
@@ -46,6 +47,18 @@ func (n *normalizer) foldConstexpr(x ast.Expr) ast.Expr {
 			}
 		}
 	}
+
+	if call, ok := x.(*ast.CallExpr); ok && typep.IsTypeExpr(n.cfg.Info, call.Fun) {
+		typ := n.cfg.Info.TypeOf(call).Underlying().(*types.Basic)
+		switch typ.Kind() {
+		case types.Bool, types.Int, types.Float64, types.String:
+			// Do nothing.
+		default:
+			call.Args[0] = constValueNode(tv.Value)
+			return call
+		}
+	}
+
 	return constValueNode(tv.Value)
 }
 

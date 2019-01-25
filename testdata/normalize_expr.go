@@ -59,6 +59,14 @@ func conversionTest() {
 
 	// These require conversion.
 	_, _ = int32(x), int32(x)
+
+	// Preserve type conversion for untyped literals.
+	_, _ = int8(1), int8(1)
+	_, _ = int8(int16(1)), int8(1)
+	_, _ = int8(int16(int32(1))), int8(1)
+	_, _ = int8(int16(int32(int64(1)))), int8(1)
+	_, _ = int16(int8(int16(int32(int64(1+1+1))))), int16(3)
+	_, _ = int32(int16(int8(int16(int32(int64(1+1)))))), int32(2)
 }
 
 func yodaTest() {
