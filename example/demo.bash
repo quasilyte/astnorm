@@ -37,7 +37,6 @@ cat mylib2/mylib2.go
 # Normalized forms are more-or-less the same.
 # Only variables names differ.
 go-normalize mylib1/mylib1.go
-
 ## package mylib1
 ##
 ## import "strings"
@@ -49,6 +48,7 @@ go-normalize mylib1/mylib1.go
 ## 	}
 ## 	return strings.Join(parts, "")
 ## }
+
 go-normalize mylib2/mylib2.go
 ## package mylib2
 ##
