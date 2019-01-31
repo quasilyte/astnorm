@@ -58,7 +58,7 @@ func constValueNode(cv constant.Value) ast.Expr {
 		v := constant.StringVal(cv)
 		return &ast.BasicLit{
 			Kind:  token.STRING,
-			Value: `"` + v + `"`,
+			Value: strconv.Quote(v),
 		}
 
 	case constant.Int:

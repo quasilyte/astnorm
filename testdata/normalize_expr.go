@@ -14,6 +14,14 @@ func identityTest() {
 	_, _ = 12412.312, 12412.312
 }
 
+func stringLiteralsTest() {
+	_, _ = ``, ""
+	_, _ = `\\`, "\\\\"
+	_, _ = `\d+`, "\\d+"
+	_, _ = `123`, "123"
+	_, _ = "\n"+``+"\n", "\n\n"
+}
+
 func defaultSlicingBoundsTest() {
 	var xs []int
 	var s string
